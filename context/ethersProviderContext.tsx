@@ -1,6 +1,5 @@
 import { useEffect, useState, createContext } from "react";
 import { providers } from "ethers";
-// import { string } from "hardhat/internal/core/params/argumentTypes";
 import { ReactElement } from "react";
 
 type Context = {
@@ -30,6 +29,11 @@ export const EthersProvider = (props: { children: ReactElement }) => {
       typeof window !== "undefined" &&
       typeof window.ethereum !== "undefined"
     ) {
+      window.ethereum.on("accountsChanged", () => {
+        setAccount(null);
+        setProvider(new providers.Web3Provider(window.ethereum));
+        // window.ethereum.removeAllListeners('accountsChanged')
+      });
       window.ethereum.on("chainChanged", () => {
         setAccount(null);
         setProvider(new providers.Web3Provider(window.ethereum));
@@ -38,12 +42,8 @@ export const EthersProvider = (props: { children: ReactElement }) => {
         setAccount(null);
         setProvider(new providers.Web3Provider(window.ethereum));
       });
-      window.ethereum.on("accountsChanged", () => {
-        setAccount(null);
-        setProvider(new providers.Web3Provider(window.ethereum));
-      });
     }
-  });
+  }, []);
 
   useEffect(() => {
     if (

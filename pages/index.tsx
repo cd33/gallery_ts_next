@@ -4,22 +4,23 @@ import { useCallback, useEffect, useState } from "react";
 import useEthersProvider from "../hook/useEthersProvider";
 import { ethers } from "ethers";
 import { Flex, Text } from "@chakra-ui/react";
-import Layout from "../components/Layout";
-// import Contract from '../artifacts/contracts/XXX.sol/XXX.json';
+import ContractAbi from '../data/abi/SWC_V4_ABI.json';
 
-const contractAddress = "XXX";
+const contractAddress = "0x7dA4BC8CF0344F4D473Cc5Bb9c864BCC8D06Ded2";
 
 const Home: NextPage = () => {
-  const { account, setAccount, provider } = useEthersProvider();
+  const { account, provider } = useEthersProvider();
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [balance, setBalance] = useState<number>(0)
 
   const getDatas = useCallback(async () => {
     setIsLoading(true);
-    if (provider) {
-      // const contract = new ethers.Contract(contractAddress, Contract.abi, provider);
-      console.log("success !");
+    if (provider && account) {
+      const contract = new ethers.Contract(contractAddress, ContractAbi, provider);
+      const balanceNFT = await contract.balanceOf(account)
+      setBalance(balanceNFT.toString())
     }
-  }, [provider]);
+  }, [account, provider]);
 
   useEffect(() => {
     if (account) {
@@ -28,15 +29,9 @@ const Home: NextPage = () => {
   }, [account, getDatas]);
 
   return (
-    <Layout>
-      <Flex align="center" justify="center" width="100%">
-        {account ? (
-          <Text>Bravo</Text>
-        ) : (
-          <Text>Please connect your wallet.</Text>
-        )}
-      </Flex>
-    </Layout>
+    <Flex align="center" justify="center" width="100%">
+      {account ? <Text>My Balance of NFT: {balance}</Text> : <Text>Please connect your wallet.</Text>}
+    </Flex>
   );
 };
 
